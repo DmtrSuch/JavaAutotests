@@ -5,7 +5,7 @@ public class GoogleTest extends BaseTest {
     private final static String BASE_URL = "https://www.google.com/";
 
     @Test
-    public void checkgoogle(){
+    public void checkgoogle() {
         Selenide.open(BASE_URL);
     }
 }
