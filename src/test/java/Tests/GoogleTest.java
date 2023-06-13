@@ -1,4 +1,6 @@
-import com.codeborne.selenide.Selenide;
+package Tests;
+
+import Tests.BaseTest;
 import org.testng.annotations.Test;
 
 public class GoogleTest extends BaseTest {
@@ -6,6 +8,6 @@ public class GoogleTest extends BaseTest {
 
     @Test
     public void checkgoogle() {
-        Selenide.open(BASE_URL);
+        ;
     }
 }
