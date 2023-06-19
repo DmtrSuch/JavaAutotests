@@ -1,13 +1,17 @@
 package Tests;
 
-import Tests.BaseTest;
-import org.testng.annotations.Test;
+import Browser.Browser;
+import org.junit.Test;
+import org.openqa.selenium.remote.RemoteWebDriver;
 
-public class GoogleTest extends BaseTest {
+import java.net.MalformedURLException;
+
+public class GoogleTest {
     private final static String BASE_URL = "https://www.google.com/";
 
     @Test
-    public void checkgoogle() {
-        ;
+    public void checkgoogle() throws MalformedURLException, InterruptedException {
+        RemoteWebDriver browser = Browser.SetUpBrowser(BASE_URL);
+        Thread.sleep(19999);
     }
 }

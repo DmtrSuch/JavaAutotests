@@ -1,40 +1,19 @@
 package Tests;
 
-import com.codeborne.selenide.Configuration;
+import Config.Config;
 import com.codeborne.selenide.Selenide;
-import io.github.bonigarcia.wdm.WebDriverManager;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
+import org.openqa.selenium.Platform;
+import org.openqa.selenium.remote.DesiredCapabilities;
+import org.openqa.selenium.remote.RemoteWebDriver;
+
+import java.net.MalformedURLException;
+import java.net.URI;
 
 /**
  * Базовый класс для инициализации селенида
  */
 abstract public class BaseTest {
 
-    /**
-     * Инициализация selenide с настройками
-     */
-    public void setUp(){
-        WebDriverManager.chromedriver().setup();
-        Configuration.browser = "chrome";
-        Configuration.driverManagerEnabled = true;
-        Configuration.browserSize = "1920x1080";
-        Configuration.headless = true;
-    }
-
-    /**
-     * Выполнение метода перед каждым запуском тестов
-     */
-    @BeforeEach
-    public void init(){
-        setUp();
-    }
-
-    /**
-     * Выполнение метода после каждого закрытия тестов
-     */
-    @AfterEach
-    public void tearDown(){
-        Selenide.closeWebDriver();
-    }
 }
