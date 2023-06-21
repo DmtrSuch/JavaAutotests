@@ -1,63 +1,55 @@
-//package Pages;
-//
-//import org.junit.Assert;
-//import org.openqa.selenium.By;
-//import org.openqa.selenium.WebDriver;
-//import org.openqa.selenium.NoSuchElementException;
-//import org.openqa.selenium.support.ui.ExpectedCondition;
-//import org.openqa.selenium.support.ui.WebDriverWait;
-//import org.openqa.selenium.support.ui.ExpectedCondition;
-//import org.openqa.selenium.StaleElementReferenceException;
-//import org.openqa.selenium.ElementNotInteractableException;
-//import org.openqa.selenium.TimeoutException;
-//import org.openqa.selenium.WebDriverException;
-//
-//
-//import java.util.Date;
-//import Locators.BasePageLocators;
-//
-//import static org.junit.Assert.fail;
-//
-//
-//    public abstract class BasePage {
-//        WebDriver driver;
-//        String url;
-//        BasePageLocators locators;
-//
-//        public BasePage(WebDriver driver, String url) {
-//            this.driver = driver;
-//            this.url = url;
-//            check(driver);
-//        }
-//
-//        public void sendKeys(By element, String keys) {
-//            driver.findElement(element).sendKeys(keys);
-//        }
-//
-//        public void click(By element) {
-//
-//            if(isElementPresent(element)){
-//                driver.findElement(element).click();
-//            }
-//            else Assert.fail("Не удалось кликнуть на элемент");
-//
-//        }
-//
-//        public boolean isElementPresent(By element) {
-//            try {
-//                driver.findElement(element).isDisplayed();
-//                return true;
-//            } catch (NoSuchElementException e) {
-//                return false;
-//            }
-//        }
-//
-//        public void assertTrue(WebDriver driver, int time, By xpath, String badMessage, String goodMessage){
-//            Assert.assertTrue( badMessage,
-//                    new WebDriverWait(driver, time).
-//                            until((ExpectedCondition<Boolean>) d -> isElementPresent(xpath)));
-//            System.out.println(new Date()+" - " + goodMessage);
-//        }
-//
-//        abstract protected void check(WebDriver driver);
-//    }
+package Pages;
+
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.TimeoutException;
+
+
+import java.util.function.Supplier;
+
+import Locators.BasePageLocators;
+
+
+public abstract class BasePage {
+    WebDriver driver;
+    String url;
+    BasePageLocators locators;
+
+    public BasePage(WebDriver driver, String url) throws InterruptedException {
+        this.driver = driver;
+        this.url = url;
+        assert is_opened();
+    }
+
+
+    private boolean check_url() throws Exception {
+        if (!this.driver.getCurrentUrl().equals(this.url)){
+            throw new Exception(String.format(this.url + " did not opened in " + this.getClass().getName() +
+                " Current_url: " + this.driver.getCurrentUrl()));
+        }
+        return true;
+    }
+
+    protected  <T> T waiter(Supplier<T> method, int timeout, long interval) throws InterruptedException {
+        long started = System.currentTimeMillis();
+        Exception lastException = null;
+        while (System.currentTimeMillis() - started < timeout){
+            try {
+                return method.get();
+            } catch (Exception e) {
+                lastException = e;
+            }
+            Thread.sleep(interval*1000);
+        }
+        throw new TimeoutException("Method " + method.getClass().getName() +
+                " timed out in " + timeout + "sec with exception: " + lastException);
+    }
+    private boolean is_opened() throws InterruptedException {
+        return waiter(() -> {
+            try {
+                return check_url();
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
+        }, 10, 1);
+    }
+}

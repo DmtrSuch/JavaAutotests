@@ -1,17 +1,20 @@
 package Tests;
 
-import Browser.Browser;
+import Browser.*;
+import Config.Config;
 import org.junit.Test;
 import org.openqa.selenium.remote.RemoteWebDriver;
 
 import java.net.MalformedURLException;
 
+import static Pages.GetPages.GetLoginPage;
+
 public class GoogleTest {
-    private final static String BASE_URL = "https://www.google.com/";
 
     @Test
-    public void checkgoogle() throws MalformedURLException, InterruptedException {
-        RemoteWebDriver browser = Browser.SetUpBrowser(BASE_URL);
+    public void checkgoogle() throws InterruptedException {
+        RemoteWebDriver browser = Browser.SetUpBrowserDefault(Config.Base_Url);
+        GetLoginPage(browser);
         Thread.sleep(19999);
     }
 }
