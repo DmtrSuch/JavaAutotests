@@ -1,23 +1,27 @@
 package Pages;
 
-import org.openqa.selenium.WebDriver;
-import org.openqa.selenium.TimeoutException;
+import org.openqa.selenium.*;
+
+import java.time.Duration;
+
+import org.openqa.selenium.support.ui.WebDriverWait;
+import org.openqa.selenium.support.ui.ExpectedConditions;
 
 
-import java.util.function.Supplier;
-
-import Locators.BasePageLocators;
+import static Utils.Utils.waiter;
 
 
 public abstract class BasePage {
-    WebDriver driver;
-    String url;
-    BasePageLocators locators;
+    protected WebDriver driver;
+    protected String url;
+    int time_to_wait = 15;
+    JavascriptExecutor js;
 
     public BasePage(WebDriver driver, String url) throws InterruptedException {
         this.driver = driver;
         this.url = url;
         assert is_opened();
+        js = (JavascriptExecutor)this.driver;
     }
 
 
@@ -29,20 +33,6 @@ public abstract class BasePage {
         return true;
     }
 
-    protected  <T> T waiter(Supplier<T> method, int timeout, long interval) throws InterruptedException {
-        long started = System.currentTimeMillis();
-        Exception lastException = null;
-        while (System.currentTimeMillis() - started < timeout){
-            try {
-                return method.get();
-            } catch (Exception e) {
-                lastException = e;
-            }
-            Thread.sleep(interval*1000);
-        }
-        throw new TimeoutException("Method " + method.getClass().getName() +
-                " timed out in " + timeout + "sec with exception: " + lastException);
-    }
     private boolean is_opened() throws InterruptedException {
         return waiter(() -> {
             try {
@@ -52,4 +42,92 @@ public abstract class BasePage {
             }
         }, 10, 1);
     }
+
+    private WebDriverWait waits(){
+        return this.waits(time_to_wait);
+    }
+
+    private WebDriverWait waits(int timeout){
+        return new WebDriverWait(this.driver, Duration.ofSeconds(timeout));
+    }
+
+    protected WebElement find(By.ByXPath locator, int timeout) {
+        return this.waits(timeout).until(ExpectedConditions.presenceOfElementLocated(locator));
+    }
+
+    protected WebElement find(By.ByXPath locator) {
+        return this.find(locator, this.time_to_wait);
+    }
+    private void scroll_to(WebElement element){
+          this.js.executeScript("arguments[0].scrollIntoView(true)", element);
+    }
+
+    protected boolean click(By.ByXPath locator, int timeout) throws InterruptedException {
+        return waiter(() -> {
+            WebElement element = this.move_to_element_by_locator(locator, timeout);
+            element.click();
+            return true;
+        }, timeout, 1);
+    }
+
+    protected boolean click(By.ByXPath locator) throws InterruptedException {
+        return this.click(locator, this.time_to_wait);
+    }
+
+    protected boolean write(By.ByXPath locator, String words, int timeout) throws InterruptedException {
+        return waiter(() -> {
+            WebElement element = this.move_to_element_by_locator(locator, timeout);
+            element.clear();
+            element.sendKeys(words);
+            return true;
+        }, timeout, 1);
+    }
+
+    protected boolean write(By.ByXPath locator, String words) throws InterruptedException{
+        return this.write(locator, words, this.time_to_wait);
+    }
+
+    protected WebElement move_to_element_by_locator(By.ByXPath locator, int timeout){
+        WebElement element = this.find(locator, timeout);
+        this.scroll_to(element);
+        return element;
+    }
+    protected WebElement move_to_element_by_locator(By.ByXPath locator){
+        return this.move_to_element_by_locator(locator, this.time_to_wait);
+    }
+
+    protected boolean not_element_present(By.ByXPath locator, int timeout){
+        try {
+            this.find(locator, timeout);
+        } catch (TimeoutException e) {
+            return true;
+        }
+        return false;
+    }
+
+    protected boolean not_element_present(By.ByXPath locator){
+        return this.not_element_present(locator, this.time_to_wait);
+    }
+
+    protected boolean text_present(By.ByXPath locator, String text, int timeout){
+        try{
+            this.waits(timeout).until(ExpectedConditions.textToBePresentInElement(this.find(locator, timeout), text));
+        } catch (TimeoutException e) {
+            return false;
+        }
+        return true;
+    }
+
+    protected boolean text_present(By.ByXPath locator, String text){
+        return this.text_present(locator, text, time_to_wait);
+    }
+
+    protected boolean element_present(By.ByXPath locator, int timeout){
+        return !not_element_present(locator, timeout);
+    }
+
+    protected boolean element_present(By.ByXPath locator){
+        return this.element_present(locator, this.time_to_wait);
+    }
 }
+
