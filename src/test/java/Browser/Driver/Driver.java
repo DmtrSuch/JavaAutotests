@@ -6,11 +6,11 @@ import org.openqa.selenium.remote.RemoteWebDriver;
 import java.net.MalformedURLException;
 import java.net.URI;
 
-public class Driver {
+public interface Driver {
     /**fgv
      * Инициализация selenide с настройками
      */
-    public static RemoteWebDriver setUpDriverDefault() {
+    static RemoteWebDriver setUpDriverDefault() {
         DesiredCapabilities capabilities = new DesiredCapabilities();
         capabilities.setBrowserName("chrome");
         capabilities.setVersion("100.0");

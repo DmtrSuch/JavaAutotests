@@ -1,11 +1,14 @@
 package Pages;
 
-import Config.Config;
+import Config.ConfigProvider;
 import org.openqa.selenium.remote.RemoteWebDriver;
 
-public class GetPages {
-    public static LoginPage GetLoginPage(RemoteWebDriver browser) throws InterruptedException {
-        String url = Config.Base_Url;
-        return new LoginPage(browser, url);
+public interface GetPages {
+     static LoginPage GetLoginPage(RemoteWebDriver browser) throws InterruptedException {
+        return new LoginPage(browser, ConfigProvider.Base_Url);
+    }
+
+    static MainPage GetMainPage(RemoteWebDriver browser) throws InterruptedException {
+        return new MainPage(browser, ConfigProvider.Base_Url + "dashboard");
     }
 }
