@@ -2,24 +2,18 @@ package Tests;
 
 import Browser.Browser;
 import Config.ConfigProvider;
-import Pages.BasePage;
 import Pages.GetPages;
 import Pages.LoginPage;
 import Pages.MainPage;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.BeforeClass;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
 import org.openqa.selenium.Cookie;
 import org.openqa.selenium.remote.RemoteWebDriver;
-
-import javax.sql.rowset.BaseRowSet;
 import java.io.IOException;
 import java.util.Set;
 
 
-/**
- * Базовый класс для инициализации селениума
- */
 abstract public class BaseTest {
     protected RemoteWebDriver browser;
     protected boolean authorize = true;
@@ -29,7 +23,7 @@ abstract public class BaseTest {
     abstract protected RemoteWebDriver setUpBrowser(String url);
     protected MainPage mainpage;
 
-    @BeforeClass
+    @BeforeAll
     public static void Cookies() throws InterruptedException {
         RemoteWebDriver browser = Browser.GetBrowser(ConfigProvider.Base_Url, Browser.BrowserDefaultOne);
         LoginPage loginPage = GetPages.GetLoginPage(browser);
@@ -38,7 +32,7 @@ abstract public class BaseTest {
         browser.quit();
     }
 
-    @Before
+    @BeforeEach
     public void setUp() throws IOException, InterruptedException {
         this.Base_Url = ConfigProvider.Base_Url;
         this.browser = setUpBrowser(this.Base_Url);
@@ -56,7 +50,7 @@ abstract public class BaseTest {
         }
     }
 
-    @After
+    @AfterEach
     public void tearDown(){
         this.browser.close();
         this.browser.quit();

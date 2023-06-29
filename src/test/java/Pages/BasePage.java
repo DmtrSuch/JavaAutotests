@@ -1,12 +1,13 @@
 package Pages;
 
+import org.junit.jupiter.api.Assertions;
 import org.openqa.selenium.*;
 
 import java.time.Duration;
 
 import org.openqa.selenium.support.ui.WebDriverWait;
 import org.openqa.selenium.support.ui.ExpectedConditions;
-
+import Exception.PageNotOpened;
 
 import static Utils.Utils.waiter;
 
@@ -20,14 +21,14 @@ public abstract class BasePage {
     public BasePage(WebDriver driver, String url) throws InterruptedException {
         this.driver = driver;
         this.url = url;
-        assert is_opened();
+        Assertions.assertTrue(is_opened());
         js = (JavascriptExecutor)this.driver;
     }
 
 
-    private boolean check_url() throws Exception {
+    private boolean check_url() throws PageNotOpened {
         if (!this.driver.getCurrentUrl().equals(this.url)){
-            throw new Exception(String.format(this.url + " did not opened in " + this.getClass().getName() +
+            throw new PageNotOpened(String.format(this.url + " did not opened in " + this.getClass().getName() +
                 " Current_url: " + this.driver.getCurrentUrl()));
         }
         return true;

@@ -1,5 +1,6 @@
 package Browser.Driver;
 
+import Config.ConfigProvider;
 import org.openqa.selenium.remote.DesiredCapabilities;
 import org.openqa.selenium.remote.RemoteWebDriver;
 
@@ -17,7 +18,7 @@ public interface Driver {
         capabilities.setCapability("enableVNC", true);
         try {
             return new RemoteWebDriver(
-                    URI.create("http://localhost:4444/wd/hub").toURL(),
+                    URI.create("http://"+ ConfigProvider.Selenoid_Url + "/wd/hub").toURL(),
                     capabilities
             );
         } catch (MalformedURLException e) {
