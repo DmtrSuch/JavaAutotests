@@ -1,6 +1,7 @@
 package Browser;
 
 import Browser.Driver.Driver;
+import io.qameta.allure.Allure;
 import org.openqa.selenium.remote.RemoteWebDriver;
 
 public class Browser {
@@ -13,6 +14,7 @@ public class Browser {
             case BrowserDefaultOne: return SetUpBrowserDefault(url);
             case BrowserDefaultTwo: return SetUpBrowserDefaultTwo(url);
         }
+        Allure.step("SetUp" + browser);
         return SetUpBrowserDefault(url);
     }
     public static RemoteWebDriver GetBrowser(String url){

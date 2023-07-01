@@ -1,6 +1,7 @@
 package Browser.Driver;
 
 import Config.ConfigProvider;
+import io.qameta.allure.Allure;
 import org.openqa.selenium.remote.DesiredCapabilities;
 import org.openqa.selenium.remote.RemoteWebDriver;
 
@@ -15,6 +16,7 @@ public interface Driver {
         DesiredCapabilities capabilities = new DesiredCapabilities();
         capabilities.setBrowserName("chrome");
         capabilities.setVersion("100.0");
+        Allure.step("SetUpDefaultDriver With 100 Chrome");
         capabilities.setCapability("enableVNC", true);
         try {
             return new RemoteWebDriver(

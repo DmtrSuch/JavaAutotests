@@ -1,6 +1,8 @@
 package Pages;
 
 import Locators.LoginPageLocators;
+import io.qameta.allure.Allure;
+import io.qameta.allure.Step;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.remote.RemoteWebDriver;
 
@@ -12,7 +14,9 @@ public class LoginPage extends BasePage {
         super(driver, url);
     }
 
+    @Step("Login with Creeds: [{Login}], [{Password}]")
     public MainPage LogIn(String Login, String Password) throws InterruptedException {
+        Allure.step("Login with Creeds: " + Login + " " + Password);
         this.click(this.locators.button_login_locator);
         this.write(this.locators.login_input_locator, Login);
         this.write(this.locators.password_input_locator, Password);
