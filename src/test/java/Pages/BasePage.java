@@ -44,7 +44,7 @@ public abstract class BasePage {
             } catch (Exception e) {
                 throw new RuntimeException(e);
             }
-        }, 80, 1);
+        }, 200, 1);
     }
 
     @Step("Wait element")
@@ -83,8 +83,8 @@ public abstract class BasePage {
                 WebElement element = this.move_to_element_by_locator(locator, timeout);
                 element.click();
                 result = true;
-            } catch (StaleElementReferenceException e){
-                Allure.step("get SERE");
+            } catch (StaleElementReferenceException | ElementNotInteractableException e){
+                Allure.step("get SERE or ENTE");
             }
             return result;
         }, timeout, 1);
@@ -106,8 +106,8 @@ public abstract class BasePage {
                 element.clear();
                 element.sendKeys(words);
                 result = true;
-            } catch (StaleElementReferenceException e){
-                Allure.step("get SERE");
+            } catch (StaleElementReferenceException | ElementNotInteractableException e){
+                Allure.step("get SERE or ENTE");
             }
             return result;
         }, timeout, 1);
