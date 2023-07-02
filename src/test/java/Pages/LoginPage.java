@@ -1,7 +1,10 @@
 package Pages;
 
 import Locators.LoginPageLocators;
+import io.qameta.allure.Allure;
+import io.qameta.allure.Step;
 import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.remote.RemoteWebDriver;
 
 public class LoginPage extends BasePage {
 
@@ -11,10 +14,13 @@ public class LoginPage extends BasePage {
         super(driver, url);
     }
 
-    public void TryAll() throws InterruptedException {
-        assert this.click(this.locators.button_login_locator);
-        assert this.write(this.locators.login_input_locator, "amogus");
-        assert this.text_present(this.locators.check_text_locator, "Или войдите с помощью соцсетей");
-        assert this.element_present(this.locators.check_element_present_locator);
+    @Step("Login with Creeds: [{Login}], [{Password}]")
+    public MainPage LogIn(String Login, String Password) throws InterruptedException {
+        Allure.step("Login with Creeds: " + Login + " " + Password);
+        this.click(this.locators.button_login_locator);
+        this.write(this.locators.login_input_locator, Login);
+        this.write(this.locators.password_input_locator, Password);
+        this.click(this.locators.enter_button_locator);
+        return GetPages.GetMainPage((RemoteWebDriver) this.driver);
     }
 }

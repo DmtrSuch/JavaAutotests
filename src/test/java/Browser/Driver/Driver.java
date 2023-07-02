@@ -1,23 +1,26 @@
 package Browser.Driver;
 
+import Config.ConfigProvider;
+import io.qameta.allure.Allure;
 import org.openqa.selenium.remote.DesiredCapabilities;
 import org.openqa.selenium.remote.RemoteWebDriver;
 
 import java.net.MalformedURLException;
 import java.net.URI;
 
-public class Driver {
+public interface Driver {
     /**fgv
      * Инициализация selenide с настройками
      */
-    public static RemoteWebDriver setUpDriverDefault() {
+    static RemoteWebDriver setUpDriverDefault() {
         DesiredCapabilities capabilities = new DesiredCapabilities();
         capabilities.setBrowserName("chrome");
         capabilities.setVersion("100.0");
+        Allure.step("SetUpDefaultDriver With 100 Chrome");
         capabilities.setCapability("enableVNC", true);
         try {
             return new RemoteWebDriver(
-                    URI.create("http://localhost:4444/wd/hub").toURL(),
+                    URI.create("http://"+ ConfigProvider.Selenoid_Url + "/wd/hub").toURL(),
                     capabilities
             );
         } catch (MalformedURLException e) {
