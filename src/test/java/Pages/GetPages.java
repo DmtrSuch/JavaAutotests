@@ -13,6 +13,6 @@ public interface GetPages {
     }
 
     static ProfilePage GetProfilePage(RemoteWebDriver browser) throws InterruptedException {
-        return new ProfilePage(browser, ConfigProvider.Base_Url + "profile");
+        return new ProfilePage(browser, ConfigProvider.Base_Url + "profile/contacts");
     }
 }
