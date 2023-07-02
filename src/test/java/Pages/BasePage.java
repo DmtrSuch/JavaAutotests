@@ -16,7 +16,7 @@ import static Utils.Utils.waiter;
 public abstract class BasePage {
     protected WebDriver driver;
     protected String url;
-    int time_to_wait = 15;
+    int time_to_wait = 8;
     JavascriptExecutor js;
 
     public BasePage(WebDriver driver, String url) throws InterruptedException {
@@ -44,7 +44,7 @@ public abstract class BasePage {
             } catch (Exception e) {
                 throw new RuntimeException(e);
             }
-        }, 10, 1);
+        }, 80, 1);
     }
 
     @Step("Wait element")
@@ -78,9 +78,15 @@ public abstract class BasePage {
     protected boolean click(By.ByXPath locator, int timeout) throws InterruptedException {
         Allure.step("Click element By locator: " + locator);
         return waiter(() -> {
-            WebElement element = this.move_to_element_by_locator(locator, timeout);
-            element.click();
-            return true;
+            boolean result = false;
+            try {
+                WebElement element = this.move_to_element_by_locator(locator, timeout);
+                element.click();
+                result = true;
+            } catch (StaleElementReferenceException e){
+                Allure.step("get SERE");
+            }
+            return result;
         }, timeout, 1);
     }
 
@@ -94,15 +100,21 @@ public abstract class BasePage {
     protected boolean write(By.ByXPath locator, String words, int timeout) throws InterruptedException {
         Allure.step("Write in element By locator: " + locator + " Text: " + words);
         return waiter(() -> {
-            WebElement element = this.move_to_element_by_locator(locator, timeout);
-            element.clear();
-            element.sendKeys(words);
-            return true;
+            boolean result = false;
+            try {
+                WebElement element = this.move_to_element_by_locator(locator, timeout);
+                element.clear();
+                element.sendKeys(words);
+                result = true;
+            } catch (StaleElementReferenceException e){
+                Allure.step("get SERE");
+            }
+            return result;
         }, timeout, 1);
     }
 
     @Step("Write in element By locator: [{locator}] Text: [{words}]")
-    protected boolean write(By.ByXPath locator, String words) throws InterruptedException{
+    protected boolean write(By.ByXPath locator, String words) throws InterruptedException {
         Allure.step("Write in element By locator: " + locator + " Text: " + words);
         return this.write(locator, words, this.time_to_wait);
     }
@@ -142,7 +154,11 @@ public abstract class BasePage {
     protected boolean text_present(By.ByXPath locator, String text, int timeout){
         Allure.step("Check Text Present In Element By Locator: " + locator + " text: " + text);
         try{
-            this.waits(timeout).until(ExpectedConditions.textToBePresentInElement(this.find(locator, timeout), text));
+            // this.waits(timeout).until(ExpectedConditions.textToBePresentInElement(this.find(locator, timeout), text));
+            this.waits(timeout).until(ExpectedConditions.textToBePresentInElementValue(locator, text));
+            // this.waits(timeout).until(ExpectedConditions.textToBePresentInElementLocated(locator, text));
+
+
         } catch (TimeoutException e) {
             return false;
         }
@@ -150,7 +166,7 @@ public abstract class BasePage {
     }
 
     @Step("Check Text Present In Element By Locator: [{locator}] text: [{text}]")
-    protected boolean text_present(By.ByXPath locator, String text){
+    protected boolean text_present(By.ByXPath locator, String text) throws InterruptedException {
         Allure.step("Check Text Present In Element By Locator: " + locator + " text: " + text);
         return this.text_present(locator, text, time_to_wait);
     }

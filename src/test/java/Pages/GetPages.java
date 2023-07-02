@@ -11,4 +11,8 @@ public interface GetPages {
     static MainPage GetMainPage(RemoteWebDriver browser) throws InterruptedException {
         return new MainPage(browser, ConfigProvider.Base_Url + "dashboard");
     }
+
+    static ProfilePage GetProfilePage(RemoteWebDriver browser) throws InterruptedException {
+        return new ProfilePage(browser, ConfigProvider.Base_Url + "profile");
+    }
 }

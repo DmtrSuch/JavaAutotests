@@ -18,7 +18,7 @@ import static Pages.GetPages.GetLoginPage;
 import static io.qameta.allure.Allure.step;
 
 @Tag("LoginTests")
-public class TestLogin extends BaseTest {
+public class LoginTest extends BaseTest {
     @Override
     protected RemoteWebDriver setUpBrowser(String url) {
         this.authorize = false;
