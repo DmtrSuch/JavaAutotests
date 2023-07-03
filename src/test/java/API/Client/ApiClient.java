@@ -1,175 +1,147 @@
 package API.Client;
 
 import io.qameta.allure.Allure;
-import org.apache.http.HttpEntity;
-import org.apache.http.HttpResponse;
-import org.apache.http.NameValuePair;
-import org.apache.http.client.entity.UrlEncodedFormEntity;
-import org.apache.http.client.methods.*;
-import org.apache.http.entity.ContentType;
-import org.apache.http.entity.FileEntity;
-import org.apache.http.entity.StringEntity;
-import org.apache.http.impl.client.CloseableHttpClient;
-import org.apache.http.impl.client.HttpClients;
-import org.apache.http.impl.cookie.BasicClientCookie;
-import org.apache.http.message.BasicNameValuePair;
-import org.apache.http.util.EntityUtils;
-import org.apache.http.client.protocol.HttpClientContext;
+import okhttp3.*;
+import org.json.JSONObject;
 
-
-import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
 
 public class ApiClient {
-
-    private static final String location_CSRF = "csrf/";
-    private static final String location_LOGIN = "https://auth-ac.my.com/auth?lang=ru&nosavelogin=0";
-    private static final String location_CREATE_SEGMENT = "api/v2/remarketing/segments.json?fields=id,name";
-    private static final String location_DELETE_SEGMENT = "api/v1/remarketing/mass_action/delete.json";
-    private static final String location_UPLOAD_IMAGE = "api/v2/content/static.json";
-    private static final String location_CREATE_CAMPAIGN = "api/v2/campaigns.json";
-
-    private String base_url;
+    private final String base_url;
     private String csrf_token;
-    private String user;
-    private String password;
-    private CloseableHttpClient httpClient;
+
+    private String access_token;
+    private final String user;
+    private final String password;
+    private final OkHttpClient client;
 
     public ApiClient(String base_url, String user, String password) {
+        Allure.step("Init ApiClient: " + user + "/" + password);
         this.base_url = base_url;
+        this.csrf_token = null;
+        this.access_token = null;
         this.user = user;
         this.password = password;
-        this.httpClient = HttpClients.createDefault();
+        this.client = new OkHttpClient.Builder().build();
     }
 
-    private void addCsrfTokenHeader(HttpRequestBase request) {
-        if (csrf_token != null) {
-            request.addHeader("X-CSRFToken", csrf_token);
-        }
-    }
-
-    private String getResponseBody(HttpResponse response) throws IOException {
-        HttpEntity entity = response.getEntity();
-        if (entity != null) {
-            return EntityUtils.toString(entity);
-        }
-        return null;
-    }
-
-    public HttpResponse postLogin() throws IOException {
-        HttpPost request = new HttpPost(location_LOGIN);
-        addCsrfTokenHeader(request);
-
-        List<NameValuePair> params = new ArrayList<>();
-        params.add(new BasicNameValuePair("email", user));
-        params.add(new BasicNameValuePair("password", password));
-        params.add(new BasicNameValuePair("continue", "https://target.my.com/auth/mycom?state=target_login%3D1%26ignore_opener%3D1#email"));
-        request.setEntity(new UrlEncodedFormEntity(params));
-
-        CloseableHttpResponse response = httpClient.execute(request);
-        csrf_token = getCsrfToken();
-        return httpClient.execute(request);
-    }
-
-    private String getCsrfToken() throws IOException {
-        HttpGet request = new HttpGet(base_url + location_CSRF);
-        HttpClientContext context = HttpClientContext.create();
-        HttpResponse response = httpClient.execute(request, context);
-
-        String csrfToken = null;
-        for (org.apache.http.cookie.Cookie cookie : context.getCookieStore().getCookies()) {
-            if ("csrftoken".equals(cookie.getName())) {
-                csrfToken = cookie.getValue();
-                break;
+    public String getCsrfToken() throws IOException {
+        Allure.step("Get CSRF token");
+        String url = base_url + "/csrf/";
+        Request request = new Request.Builder()
+                .url(url)
+                .build();
+        try (Response response = client.newCall(request).execute()) {
+            String cookieHeader = response.header("set-cookie");
+            List<String> cookies = response.headers("set-cookie");
+            for (String cookie : cookies) {
+                if (cookie.contains("csrftoken")) {
+                    csrf_token = cookie.split("=")[1].split(";")[0];
+                    break;
+                }
             }
+            return csrf_token;
         }
-        return csrfToken;
     }
 
-    public HttpResponse postCreateSegment(String name, String pass_condition, String object_type, int left,
-                                          int right, String seg_type) throws IOException {
-        HttpPost request = new HttpPost(base_url + location_CREATE_SEGMENT);
-        addCsrfTokenHeader(request);
+    public String getAccessToken(String clientId, String clientSecret) throws Exception {
+        MediaType mediaType = MediaType.parse("application/x-www-form-urlencoded");
+        String requestBody = "grant_type=client_credentials" +
+                "&client_id=" + clientId +
+                "&client_secret=" + clientSecret;
 
+        Request request = new Request.Builder()
+                .url(base_url + "api/v2/oauth2/token.json")
+                .header("Content-Type", "application/x-www-form-urlencoded")
+                .post(RequestBody.create(mediaType, requestBody))
+                .build();
+
+        try (Response response = client.newCall(request).execute()) {
+            if (!response.isSuccessful()) {
+                throw new Exception("Request failed with code: " + response.code());
+            }
+
+            String responseBody = response.body().string();
+            return extractAccessToken(responseBody);
+        }
+    }
+
+    private String extractAccessToken(String responseBody) throws Exception {
+        JSONObject jsonResponse = new JSONObject(responseBody);
+        String accessToken = jsonResponse.getString("access_token");
+        return accessToken;
+    }
+
+    public Response postLogin(String user, String password) throws Exception {
+        Allure.step("Post Login: " + user + "pass:" + password);
+        String url = "https://auth-ac.my.com/auth?lang=ru&nosavelogin=0";
+        MediaType mediaType = MediaType.parse("application/x-www-form-urlencoded");
+        String referer = "https://target.my.com/";
+        String continueParam = "https://target.my.com/auth/mycom?state=target_login%3D1%26ignore_opener%3D1#email";
+        String requestBody = "email=" + user + "&password=" + password + "&continue=" + continueParam;
+        RequestBody body = RequestBody.create(mediaType, requestBody);
+        Request request = new Request.Builder()
+                .url(url)
+                .header("Content-Type", "application/x-www-form-urlencoded")
+                .header("Referer", referer)
+//                .header("access_token", access_token)
+                .post(body)
+                .build();
+        Response response = client.newCall(request).execute();
+//        access_token = getAccessToken(user, password);
+        csrf_token = getCsrfToken();
+        return response;
+
+    }
+
+
+    public Response postCreateSegment(String name, String pass_condition, String object_type, int left, int right, String seg_type) throws IOException {
+        Allure.step("Create Segment: " + name + "pass:" + pass_condition);
+        String url = base_url + "/api/v2/remarketing/segments.json?fields=id,name";
+        MediaType mediaType = MediaType.parse("application/json");
         String json = "{\"name\":\"" + name + "\",\"pass_condition\":\"" + pass_condition +
-                "\",\"relations\":[{\"object_type\":\"" + object_type + "\",\"params\":{\"left\":" + left +
-                ",\"right\":" + right + ",\"type\":\"" + seg_type + "\"}}]}";
-        request.setEntity(new StringEntity(json, ContentType.APPLICATION_JSON));
-
-        return httpClient.execute(request);
+                "\",\"relations\":[{\"object_type\":\"" + object_type + "\",\"params\":{\"left\":"
+                + left + ",\"right\":" + right + ",\"type\":\"" + seg_type + "\"}}]}";
+        RequestBody body = RequestBody.create(mediaType, json);
+        Request request = new Request.Builder()
+                .url(url)
+                .header("access_token", access_token)
+                .post(body)
+                .build();
+        return client.newCall(request).execute();
     }
 
-    public HttpResponse postCreateSegment(String name, String pass_condition, String object_type) throws IOException {
-        return postCreateSegment(name, pass_condition, object_type, 365, 9, "positive");
-    }
-    public HttpResponse postDeleteSegment(String segment_id, String source_type) throws IOException {
-        HttpPost request = new HttpPost(base_url + location_DELETE_SEGMENT);
-        addCsrfTokenHeader(request);
-
-        String json = "[{\"source_id\":\"" + segment_id + "\",\"source_type\":\"" + source_type + "\"}]";
-        request.setEntity(new StringEntity(json, ContentType.APPLICATION_JSON));
-
-        return httpClient.execute(request);
+    public Response postCreateSegment(String name, String pass_condition, String object_type) throws IOException {
+        return postCreateSegment(name, pass_condition, object_type, 365, 0, "positive");
     }
 
-    public HttpResponse postDeleteSegment(String segment_id) throws IOException {
-        return postDeleteSegment(segment_id, "segment");
+    public Response postDeleteSegment(String segmentId, String sourceType) throws IOException {
+        Allure.step("Create Segment: " + segmentId + "source:" + sourceType);
+        String url = base_url + "/api/v1/remarketing/mass_action/delete.json";
+        MediaType mediaType = MediaType.parse("application/json");
+        String json = "[{\"source_id\":\"" + segmentId + "\",\"source_type\":\"" + sourceType + "\"}]";
+        RequestBody body = RequestBody.create(mediaType, json);
+        Request request = new Request.Builder()
+                .url(url)
+                .header("access_token", access_token)
+                .post(body)
+                .build();
+        return client.newCall(request).execute();
     }
 
-    public HttpResponse getCheckSegment(String segment_id) throws IOException {
-        HttpGet request = new HttpGet(base_url + "api/v2/remarketing/segments/" + segment_id + ".json");
-        addCsrfTokenHeader(request);
-
-        return httpClient.execute(request);
+    public Response postDeleteSegment(String segmentId) throws IOException {
+        return postDeleteSegment(segmentId, "segment");
     }
 
-    public HttpResponse postUploadImage(String file) throws IOException {
-        HttpPost request = new HttpPost(base_url + location_UPLOAD_IMAGE);
-        addCsrfTokenHeader(request);
-
-        FileEntity fileEntity = new FileEntity(new File(file), ContentType.APPLICATION_OCTET_STREAM);
-        request.setEntity(fileEntity);
-
-        return httpClient.execute(request);
-    }
-
-    public HttpResponse getIdUrl(String target_url) throws IOException {
-        HttpGet request = new HttpGet(base_url + "api/v1/urls/?url=" + target_url);
-        addCsrfTokenHeader(request);
-
-        return httpClient.execute(request);
-    }
-
-    public HttpResponse getCampaignStatus(String campaign_id) throws IOException {
-        HttpGet request = new HttpGet(base_url + "api/v2/campaigns/" + campaign_id + ".json?fields=issues");
-        addCsrfTokenHeader(request);
-
-        return httpClient.execute(request);
-    }
-
-    public HttpResponse postCreateCampaign(String name, String image_id, String url_id, String objective,
-                                           int package_id) throws IOException {
-        HttpPost request = new HttpPost(base_url + location_CREATE_CAMPAIGN);
-        addCsrfTokenHeader(request);
-
-        String json = "{\"banners\":[{\"content\":{\"image_240x400\":{\"id\":\"" + image_id +
-                "\"}},\"urls\":{\"primary\":{\"id\":\"" + url_id + "\"}}}],\"name\":\"" + name +
-                "\",\"objective\":\"" + objective + "\",\"package_id\":" + package_id + "}";
-        request.setEntity(new StringEntity(json, ContentType.APPLICATION_JSON));
-
-        return httpClient.execute(request);
-    }
-
-    public HttpResponse postCreateCampaign(String name, String image_id, String url_id) throws IOException {
-        return postCreateCampaign(name, image_id, url_id, "reach", 960);
-    }
-
-    public HttpResponse deleteCampaign(String campaign_id) throws IOException {
-        HttpDelete request = new HttpDelete(base_url + "api/v2/campaigns/" + campaign_id + ".json");
-        addCsrfTokenHeader(request);
-
-        return httpClient.execute(request);
+    public Response getCheckSegment(String segmentId) throws IOException {
+        Allure.step("Check Segment: " + segmentId);
+        String location = "/api/v2/remarketing/segments/" + segmentId + ".json";
+        String url = base_url + location;
+        Request request = new Request.Builder()
+                .url(url)
+                .header("access_token", access_token)
+                .build();
+        return client.newCall(request).execute();
     }
 }
