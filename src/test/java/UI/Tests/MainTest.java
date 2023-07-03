@@ -1,9 +1,9 @@
-package Tests;
+package UI.Tests;
 
-import Browser.Browser;
-import Pages.LoginPage;
-import Pages.MainPage;
-import Pages.ProfilePage;
+import UI.Browser.Browser;
+import UI.Pages.LoginPage;
+import UI.Pages.MainPage;
+import UI.Pages.ProfilePage;
 import Utils.UserBuilder;
 import io.qameta.allure.Allure;
 import org.junit.jupiter.api.Assertions;
@@ -18,14 +18,14 @@ import org.openqa.selenium.remote.RemoteWebDriver;
 public class MainTest extends BaseTest {
     @Override
     protected RemoteWebDriver setUpBrowser(String url) {
-        Allure.step("Set Up Browser with URL" + this.Base_Url);
+        Allure.step("Set Up UI.Browser with URL" + this.Base_Url);
         return Browser.GetBrowser(this.Base_Url, Browser.BrowserDefaultOne);
     }
 
     @Test
     @DisplayName("LogOut")
     @Tag("Logout")
-    void CorrectLogOut() throws InterruptedException {
+    void CorrectLogOut() throws Exception {
         Allure.step("LogOut");
         LoginPage loginpage = mainpage.LogOut();
     }

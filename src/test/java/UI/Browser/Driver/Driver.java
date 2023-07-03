@@ -1,4 +1,4 @@
-package Browser.Driver;
+package UI.Browser.Driver;
 
 import Config.ConfigProvider;
 import io.qameta.allure.Allure;

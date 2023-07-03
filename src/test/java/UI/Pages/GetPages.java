@@ -1,4 +1,4 @@
-package Pages;
+package UI.Pages;
 
 import Config.ConfigProvider;
 import org.openqa.selenium.remote.RemoteWebDriver;

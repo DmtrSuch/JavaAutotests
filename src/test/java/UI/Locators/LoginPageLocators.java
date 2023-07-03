@@ -1,4 +1,4 @@
-package Locators;
+package UI.Locators;
 
 import org.openqa.selenium.By;
 

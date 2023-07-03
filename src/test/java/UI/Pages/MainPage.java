@@ -1,9 +1,9 @@
-package Pages;
+package UI.Pages;
 
-import Locators.MainPageLocators;
+import UI.Exception.PageNotOpened;
+import UI.Locators.MainPageLocators;
 import io.qameta.allure.Allure;
 import io.qameta.allure.Step;
-import org.junit.jupiter.api.Tag;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.remote.RemoteWebDriver;
@@ -13,14 +13,22 @@ public class MainPage extends BasePage {
         super(driver, url);
     }
 
+    int count_try = 4;
     MainPageLocators locators  = new MainPageLocators();
 
     @Step("LogUot")
-    public LoginPage LogOut() throws InterruptedException {
+    public LoginPage LogOut() throws Exception {
         Allure.step("Logout from mainpage");
-        this.click(locators.button_menu_logout_locator);
-        this.click(locators.button_logout_locator);
-        return GetPages.GetLoginPage((RemoteWebDriver) this.driver);
+        while (count_try != 0) {
+            try {
+                this.click(locators.button_menu_logout_locator);
+                this.click(locators.button_logout_locator);
+                return GetPages.GetLoginPage((RemoteWebDriver) this.driver);
+            } catch (Exception e) {
+                count_try--;
+            }
+        }
+        throw new Exception("Can't LogOut");
     }
 
     @Step("Go To Profile page")
