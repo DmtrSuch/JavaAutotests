@@ -1,8 +1,8 @@
-package Tests;
+package UI.Tests;
 
-import Browser.Browser;
+import UI.Browser.Browser;
 import Config.ConfigProvider;
-import Pages.LoginPage;
+import UI.Pages.LoginPage;
 import Utils.UserBuilder;
 import io.qameta.allure.Allure;
 import org.junit.jupiter.api.Assertions;
@@ -14,7 +14,7 @@ import org.junit.jupiter.params.provider.ValueSource;
 import org.openqa.selenium.TimeoutException;
 import org.openqa.selenium.remote.RemoteWebDriver;
 
-import static Pages.GetPages.GetLoginPage;
+import static UI.Pages.GetPages.GetLoginPage;
 import static io.qameta.allure.Allure.step;
 
 @Tag("LoginTests")
@@ -22,7 +22,7 @@ public class LoginTest extends BaseTest {
     @Override
     protected RemoteWebDriver setUpBrowser(String url) {
         this.authorize = false;
-        Allure.step("Set Up Browser with URL" + this.Base_Url);
+        Allure.step("Set Up UI.Browser with URL" + this.Base_Url);
         return Browser.GetBrowser(this.Base_Url, Browser.BrowserDefaultOne);
     }
 
@@ -54,7 +54,7 @@ public class LoginTest extends BaseTest {
                 () -> {login_page.LogIn(
                         InCorrectLogin,
                         InCorrectPassword);});
-        Allure.step("Get Exception: " + exception.getLocalizedMessage());
+        Allure.step("Get UI.Exception: " + exception.getLocalizedMessage());
 
     }
 
@@ -75,6 +75,6 @@ public class LoginTest extends BaseTest {
                             ConfigProvider.Base_Login,
                             InCorrectPassword);
                 });
-        Allure.step("Get Exception: " + exception.getLocalizedMessage());
+        Allure.step("Get UI.Exception: " + exception.getLocalizedMessage());
     }
 }

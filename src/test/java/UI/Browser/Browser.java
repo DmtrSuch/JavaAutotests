@@ -1,6 +1,6 @@
-package Browser;
+package UI.Browser;
 
-import Browser.Driver.Driver;
+import UI.Browser.Driver.Driver;
 import io.qameta.allure.Allure;
 import org.openqa.selenium.remote.RemoteWebDriver;
 

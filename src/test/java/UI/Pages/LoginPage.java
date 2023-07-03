@@ -1,6 +1,6 @@
-package Pages;
+package UI.Pages;
 
-import Locators.LoginPageLocators;
+import UI.Locators.LoginPageLocators;
 import io.qameta.allure.Allure;
 import io.qameta.allure.Step;
 import org.openqa.selenium.WebDriver;

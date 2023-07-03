@@ -1,4 +1,4 @@
-package Pages;
+package UI.Pages;
 
 import io.qameta.allure.Allure;
 import io.qameta.allure.Step;
@@ -9,7 +9,7 @@ import java.time.Duration;
 
 import org.openqa.selenium.support.ui.WebDriverWait;
 import org.openqa.selenium.support.ui.ExpectedConditions;
-import Exception.PageNotOpened;
+import UI.Exception.PageNotOpened;
 
 import static Utils.Utils.waiter;
 
