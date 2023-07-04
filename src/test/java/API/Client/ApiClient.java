@@ -1,6 +1,7 @@
 package API.Client;
 
 import io.qameta.allure.Allure;
+import io.qameta.allure.Step;
 import okhttp3.*;
 import org.json.JSONObject;
 
@@ -28,22 +29,26 @@ public class ApiClient {
 
     public String getCsrfToken() throws IOException {
         Allure.step("Get CSRF token");
-        String url = base_url + "/csrf/";
+        String url = base_url + "csrf/";
         Request request = new Request.Builder()
                 .url(url)
                 .build();
-        try (Response response = client.newCall(request).execute()) {
-            String cookieHeader = response.header("set-cookie");
-            List<String> cookies = response.headers("set-cookie");
-            for (String cookie : cookies) {
-                if (cookie.contains("csrftoken")) {
-                    csrf_token = cookie.split("=")[1].split(";")[0];
-                    break;
-                }
-            }
-            return csrf_token;
-        }
+        Response response = client.newCall(request).execute();
+        String setCookieHeader = response.headers().toString();
+        Allure.step(setCookieHeader);
+//        String[] cookies = setCookieHeader.split(";");
+        String csrfToken = "";
+//        for (String cookie : cookies) {
+//            if (cookie.contains("csrftoken")) {
+//                csrfToken = cookie.split("=")[1];
+//                break;
+//            }
+//        }
+//        Allure.step(csrfToken);
+        return csrfToken;
+
     }
+
 
     public String getAccessToken(String clientId, String clientSecret) throws Exception {
         MediaType mediaType = MediaType.parse("application/x-www-form-urlencoded");
@@ -89,8 +94,7 @@ public class ApiClient {
                 .post(body)
                 .build();
         Response response = client.newCall(request).execute();
-//        access_token = getAccessToken(user, password);
-        csrf_token = getCsrfToken();
+        csrf_token = this.getCsrfToken();
         return response;
 
     }

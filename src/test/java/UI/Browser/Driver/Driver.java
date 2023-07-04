@@ -20,7 +20,7 @@ public interface Driver {
         capabilities.setCapability("enableVNC", true);
         try {
             return new RemoteWebDriver(
-                    URI.create("http://"+ ConfigProvider.Selenoid_Url + "/wd/hub").toURL(),
+                    URI.create("http://"+ ConfigProvider.Selenoid_Cont_Url + "/wd/hub").toURL(),
                     capabilities
             );
         } catch (MalformedURLException e) {
