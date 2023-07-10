@@ -21,7 +21,7 @@ public interface Driver {
         try {
             if (System.getenv("SELENOID_HUB_HOST") != null){
                 return new RemoteWebDriver(
-                        URI.create(System.getenv("SELENOID_HUB_HOST") + "/wd/hub").toURL(),
+                        URI.create("http://" + System.getenv("SELENOID_HUB_HOST") + ":4444/wd/hub").toURL(),
                         capabilities
                 );
             } else {
