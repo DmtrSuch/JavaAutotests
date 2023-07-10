@@ -2,6 +2,7 @@ version: "3"
 
 networks:
   net:
+    name: net
 
 services:
   selenoid:
@@ -13,7 +14,7 @@ services:
     volumes:
       - ./src/test/resources/config:/etc/browser
       - /var/run/docker.sock:/var/run/docker.sock
-    command: [ "-conf", "/etc/browser/browsers.json", "-container-network", "selenoid"]
+    command: [ "-conf", "/etc/browser/browsers.json", "-container-network", "net"]
 
 # включить, если нужно посмотреть визуалку прогона
   selenoid-ui:
