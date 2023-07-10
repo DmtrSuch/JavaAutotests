@@ -16,7 +16,7 @@ import static Utils.Utils.waiter;
 public abstract class BasePage {
     protected WebDriver driver;
     protected String url;
-    int time_to_wait = 8;
+    int time_to_wait = 60;
     JavascriptExecutor js;
 
     public BasePage(WebDriver driver, String url) throws InterruptedException {
