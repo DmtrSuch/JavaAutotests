@@ -15,16 +15,17 @@ public interface Driver {
     static RemoteWebDriver setUpDriverDefault() {
         DesiredCapabilities capabilities = new DesiredCapabilities();
         capabilities.setBrowserName("chrome");
-        capabilities.setVersion("100.0");
-        Allure.step("SetUpDefaultDriver With 100 Chrome");
         capabilities.setCapability("enableVNC", true);
         try {
             if (System.getenv("SELENOID_HUB_HOST") != null){
+                Allure.step("SetUpDefaultDriver With GitHubDriver");
                 return new RemoteWebDriver(
                         URI.create("http://localhost:4444/wd/hub").toURL(),
                         capabilities
                 );
             } else {
+                Allure.step("SetUpDefaultDriver With 100 Chrome");
+                capabilities.setVersion("100.0");
                 return new RemoteWebDriver(
                         URI.create("http://" + ConfigProvider.Selenoid_Cont_Url + "/wd/hub").toURL(),
                         capabilities
