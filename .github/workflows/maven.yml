@@ -55,11 +55,3 @@ jobs:
         with:
           name: allure-report
           path: allure-report
-
-      - name: Deploy report to Github Pages
-        if: always()
-        uses: peaceiris/actions-gh-pages@v2
-        env:
-          PERSONAL_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          PUBLISH_BRANCH: allure-pages
-          PUBLISH_DIR: allure-history
