@@ -30,9 +30,9 @@ public interface Driver {
                         capabilities
                 );
             }
-        } catch (MalformedURLException e) {
+        } catch (Exception e) {
             System.out.println("ERROR!!!!");
-            throw new RuntimeException(e);
+            throw new RuntimeException(e + "URL:" + "http://" + System.getenv("SELENOID_HUB_HOST") + ":4444/wd/hub");
         }
     }
 
