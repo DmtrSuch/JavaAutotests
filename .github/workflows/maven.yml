@@ -1,24 +1,10 @@
 name: qa-automation-base
 
 on:
-  workflow_dispatch:
-    inputs:
-      tags:
-        description: 'Tags'
-        required: true
-        default: 'regress'
-      farm:
-        description: 'Do you need a browser farm?'
-        required: true
-        default: 'false'
-      farm_host:
-        description: 'SELENOID_HUB_HOST'
-        required: false
-        default: 'localhost'
-      browser:
-        description: 'Browser name'
-        required: false
-        default: 'chrome'
+  push:
+    branches: [ "master" ]
+  pull_request:
+    branches: [ "master" ]
 
 jobs:
   tests:
