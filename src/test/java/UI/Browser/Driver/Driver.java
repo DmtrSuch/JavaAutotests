@@ -19,9 +19,10 @@ public interface Driver {
         Allure.step("SetUpDefaultDriver With 100 Chrome");
         capabilities.setCapability("enableVNC", true);
         try {
-            if (System.getenv("SELENOID_HUB_HOST") != null){
+            String gh_sd = System.getenv("SELENOID_HUB_HOST");
+            if (gh_sd != null){
                 return new RemoteWebDriver(
-                        URI.create(System.getenv("SELENOID_HUB_HOST")).toURL(),
+                        URI.create(gh_sd).toURL(),
                         capabilities
                 );
             } else {
