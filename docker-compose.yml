@@ -1,19 +1,25 @@
 version: "3"
+
+networks:
+  net:
+    name: net
+
 services:
   selenoid:
     networks:
-      selenoid: null
+      - net
     image: "aerokube/selenoid:latest"
     ports:
       - "4444:4444"
     volumes:
       - ./src/test/resources/config:/etc/browser
       - /var/run/docker.sock:/var/run/docker.sock
-    command: [ "-conf", "/etc/browser/browsers.json", "-container-network", "selenoid"]
+    command: [ "-conf", "/etc/browser/browsers.json", "-container-network", "net"]
 
+# включить, если нужно посмотреть визуалку прогона
   selenoid-ui:
     networks:
-      selenoid: null
+      - net
     image: "aerokube/selenoid-ui"
     links:
       - selenoid
@@ -21,6 +27,20 @@ services:
       - "8080:8080"
     command: ["--selenoid-uri", "http://selenoid:4444"]
 
-networks:
-  selenoid:
-    external: true
+  autotests:
+    networks:
+      - net
+    volumes:
+      - ./:/tests
+    image: "openjdk:11"
+    command: bash -c "
+      apt update
+      && apt install maven -y
+      && mvn -version
+      && java -version
+      && echo "-----Finish_Build-----"
+      && mvn test -f tests/pom.xml
+      "
+    depends_on:
+      selenoid:
+        condition: service_started

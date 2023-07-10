@@ -6,15 +6,13 @@ import UI.Pages.MainPage;
 import UI.Pages.ProfilePage;
 import Utils.UserBuilder;
 import io.qameta.allure.Allure;
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Tag;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.openqa.selenium.remote.RemoteWebDriver;
 
 @Tag("MainTests")
+@TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 public class MainTest extends BaseTest {
     @Override
     protected RemoteWebDriver setUpBrowser(String url) {
@@ -22,23 +20,25 @@ public class MainTest extends BaseTest {
         return Browser.GetBrowser(this.Base_Url, Browser.BrowserDefaultOne);
     }
 
-    @Test
-    @DisplayName("LogOut")
-    @Tag("Logout")
-    void CorrectLogOut() throws Exception {
-        Allure.step("LogOut");
-        LoginPage loginpage = mainpage.LogOut();
-    }
 
     @ParameterizedTest(name = "Correct Change name with lenght: {0}")
     @Tag("CorrectChangeName")
+    @Order(1)
     @ValueSource(ints = { 5, 8 })
-    void CorrectChangeName(int lenght) throws InterruptedException {
-        String name = UserBuilder.GenerateUserCompany(lenght);
+    void CorrectChangeName(int length) throws Exception {
+        String name = UserBuilder.GenerateUserCompany(length);
         Allure.step("Correct Change Name: " + name);
         ProfilePage profilepage = mainpage.GoProfile();
         profilepage.ChangeName(name);
         MainPage MP = profilepage.ReturnMainPage();
         Assertions.assertTrue(MP.CheckName(name));
+    }
+
+    @Test
+    @DisplayName("LogOut")
+    @Order(2)
+    void CorrectLogOut() throws Exception {
+        Allure.step("LogOut");
+        LoginPage loginpage = mainpage.LogOut();
     }
 }

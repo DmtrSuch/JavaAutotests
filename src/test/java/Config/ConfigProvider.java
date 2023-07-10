@@ -11,6 +11,7 @@ public interface ConfigProvider {
     }
     String Base_Url = readConfig().getString("url");
     String Selenoid_Url = readConfig().getString("selenoid_url");
+    String Selenoid_Cont_Url = readConfig().getString("selenoid_url_compose");
 
     String Base_Login = readConfig().getString("userParams.default_user.login");
     String Base_Password = readConfig().getString("userParams.default_user.password");

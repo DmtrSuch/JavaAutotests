@@ -13,12 +13,12 @@ public class MainPage extends BasePage {
         super(driver, url);
     }
 
-    int count_try = 4;
     MainPageLocators locators  = new MainPageLocators();
 
     @Step("LogUot")
     public LoginPage LogOut() throws Exception {
         Allure.step("Logout from mainpage");
+        int count_try = 4;
         while (count_try != 0) {
             try {
                 this.click(locators.button_menu_logout_locator);
@@ -32,10 +32,18 @@ public class MainPage extends BasePage {
     }
 
     @Step("Go To Profile page")
-    public ProfilePage GoProfile() throws InterruptedException {
+    public ProfilePage GoProfile() throws Exception {
         Allure.step("Go To Profile page");
-        this.click(locators.button_profile_locator);
-        return GetPages.GetProfilePage((RemoteWebDriver) this.driver);
+        int count_try = 4;
+        while (count_try != 0) {
+            try {
+                this.click(locators.button_profile_locator);
+                return GetPages.GetProfilePage((RemoteWebDriver) this.driver);
+            } catch (Exception e){
+                count_try--;
+            }
+        }
+        throw new Exception("Can't Go Profile");
     }
 
     @Step("Check Name Of Profile")
