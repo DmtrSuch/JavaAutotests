@@ -5,6 +5,11 @@ networks:
     name: net
 
 services:
+  chrome:
+    networks:
+      - net
+    image: "selenoid/chrome:100.0"
+    
   selenoid:
     networks:
       - net
